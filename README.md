@@ -81,12 +81,12 @@ Avant de flasher, renseigner son propre SSID/mot de passe WiFi dans `wifi.c` (ne
 ## Compétences démontrées
 
 - Programmation C embarquée bas niveau (pointeurs, gestion mémoire, types à taille fixe)
-- FreeRTOS : tâches, queues, event groups, sections critiques
+- FreeRTOS : tâches, queues, sections critiques
 - Interfaçage capteur analogique (ADC) avec calibration réelle
 - Écriture d'un driver de protocole filaire propriétaire à partir de zéro (DHT22), avec débogage de timing au microseconde
 - Programmation événementielle (WiFi) vs. synchrone (capteurs)
 - Protocole IoT MQTT, gestion des composants ESP-IDF
-- JavaScript vanilla : client MQTT over WebSocket, rendu SVG de sparklines sans bibliothèque de graphiques
+
 
 ## État du projet
 
