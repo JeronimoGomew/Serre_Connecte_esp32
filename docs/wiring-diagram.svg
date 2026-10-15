@@ -1,0 +1,101 @@
+<svg viewBox="0 0 1000 860" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Schéma de câblage de la serre connectée : ESP32 relié au capteur d'humidité du sol sur GPIO34, au DHT22 sur GPIO18, et au module relais sur GPIO33, le relais pilotant la pompe.">
+  <rect x="0" y="0" width="1000" height="860" fill="#ffffff"/>
+
+  <text x="500" y="34" text-anchor="middle" font-family="system-ui, sans-serif" font-size="22" font-weight="700" fill="#1a1a1a">Schéma de câblage — Serre connectée (ESP32)</text>
+
+  <!-- ESP32 box -->
+  <rect x="40" y="310" width="220" height="190" rx="10" fill="#f8fafc" stroke="#1a1a1a" stroke-width="1.5"/>
+  <text x="150" y="398" text-anchor="middle" font-family="system-ui, sans-serif" font-size="17" font-weight="700" fill="#1a1a1a">ESP32 DevKit</text>
+  <text x="150" y="420" text-anchor="middle" font-family="system-ui, sans-serif" font-size="12" fill="#495057">E/S logiques 3.3V</text>
+
+  <!-- Capteur humidite du sol box -->
+  <rect x="740" y="30" width="220" height="120" rx="10" fill="#f8fafc" stroke="#1a1a1a" stroke-width="1.5"/>
+  <text x="850" y="85" text-anchor="middle" font-family="system-ui, sans-serif" font-size="15" font-weight="700" fill="#1a1a1a">Capteur d'humidité</text>
+  <text x="850" y="104" text-anchor="middle" font-family="system-ui, sans-serif" font-size="15" font-weight="700" fill="#1a1a1a">du sol (capacitif)</text>
+
+  <!-- DHT22 box -->
+  <rect x="740" y="350" width="220" height="120" rx="10" fill="#f8fafc" stroke="#1a1a1a" stroke-width="1.5"/>
+  <text x="850" y="405" text-anchor="middle" font-family="system-ui, sans-serif" font-size="15" font-weight="700" fill="#1a1a1a">DHT22</text>
+  <text x="850" y="424" text-anchor="middle" font-family="system-ui, sans-serif" font-size="12" fill="#495057">température / humidité air</text>
+  <text x="850" y="485" text-anchor="middle" font-family="system-ui, sans-serif" font-size="11" fill="#495057">+ résistance pull-up 10kΩ entre DATA et 3V3</text>
+
+  <!-- Relais box -->
+  <rect x="740" y="600" width="220" height="100" rx="10" fill="#f8fafc" stroke="#1a1a1a" stroke-width="1.5"/>
+  <text x="850" y="645" text-anchor="middle" font-family="system-ui, sans-serif" font-size="15" font-weight="700" fill="#1a1a1a">Module relais</text>
+  <text x="850" y="664" text-anchor="middle" font-family="system-ui, sans-serif" font-size="12" fill="#495057">actif HIGH</text>
+  <text x="850" y="580" text-anchor="middle" font-family="system-ui, sans-serif" font-size="11" fill="#495057">alimentation 5V dédiée (≠ 3V3 des capteurs)</text>
+
+  <!-- Pompe box -->
+  <rect x="740" y="730" width="220" height="70" rx="10" fill="#f8fafc" stroke="#1a1a1a" stroke-width="1.5"/>
+  <text x="850" y="770" text-anchor="middle" font-family="system-ui, sans-serif" font-size="15" font-weight="700" fill="#1a1a1a">Pompe</text>
+  <text x="850" y="818" text-anchor="middle" font-family="system-ui, sans-serif" font-size="11" fill="#495057">Alimentation pompe : source externe</text>
+  <text x="850" y="834" text-anchor="middle" font-family="system-ui, sans-serif" font-size="11" fill="#495057">adaptée à sa tension — non fournie par l'ESP32</text>
+
+  <!-- ===== Bundle A : capteur sol ===== -->
+  <line x1="260" y1="338" x2="740" y2="74" stroke="#c2410c" stroke-width="2"/>
+  <line x1="260" y1="354" x2="740" y2="90" stroke="#495057" stroke-width="2"/>
+  <line x1="260" y1="370" x2="740" y2="106" stroke="#1d4ed8" stroke-width="2"/>
+  <circle cx="260" cy="338" r="4" fill="#c2410c"/>
+  <circle cx="260" cy="354" r="4" fill="#495057"/>
+  <circle cx="260" cy="370" r="4" fill="#1d4ed8"/>
+  <circle cx="740" cy="74" r="4" fill="#c2410c"/>
+  <circle cx="740" cy="90" r="4" fill="#495057"/>
+  <circle cx="740" cy="106" r="4" fill="#1d4ed8"/>
+  <text x="267" y="334" font-family="system-ui, sans-serif" font-size="12" fill="#c2410c">3V3</text>
+  <text x="267" y="350" font-family="system-ui, sans-serif" font-size="12" fill="#495057">GND</text>
+  <text x="267" y="366" font-family="system-ui, sans-serif" font-size="12" fill="#1d4ed8">GPIO34</text>
+  <text x="733" y="70" text-anchor="end" font-family="system-ui, sans-serif" font-size="12" fill="#c2410c">VCC</text>
+  <text x="733" y="86" text-anchor="end" font-family="system-ui, sans-serif" font-size="12" fill="#495057">GND</text>
+  <text x="733" y="102" text-anchor="end" font-family="system-ui, sans-serif" font-size="12" fill="#1d4ed8">AOUT</text>
+
+  <!-- ===== Bundle B : DHT22 ===== -->
+  <line x1="260" y1="398" x2="740" y2="394" stroke="#c2410c" stroke-width="2"/>
+  <line x1="260" y1="414" x2="740" y2="410" stroke="#495057" stroke-width="2"/>
+  <line x1="260" y1="430" x2="740" y2="426" stroke="#1d4ed8" stroke-width="2"/>
+  <circle cx="260" cy="398" r="4" fill="#c2410c"/>
+  <circle cx="260" cy="414" r="4" fill="#495057"/>
+  <circle cx="260" cy="430" r="4" fill="#1d4ed8"/>
+  <circle cx="740" cy="394" r="4" fill="#c2410c"/>
+  <circle cx="740" cy="410" r="4" fill="#495057"/>
+  <circle cx="740" cy="426" r="4" fill="#1d4ed8"/>
+  <text x="267" y="394" font-family="system-ui, sans-serif" font-size="12" fill="#c2410c">3V3</text>
+  <text x="267" y="410" font-family="system-ui, sans-serif" font-size="12" fill="#495057">GND</text>
+  <text x="267" y="426" font-family="system-ui, sans-serif" font-size="12" fill="#1d4ed8">GPIO18</text>
+  <text x="733" y="390" text-anchor="end" font-family="system-ui, sans-serif" font-size="12" fill="#c2410c">VCC</text>
+  <text x="733" y="406" text-anchor="end" font-family="system-ui, sans-serif" font-size="12" fill="#495057">GND</text>
+  <text x="733" y="422" text-anchor="end" font-family="system-ui, sans-serif" font-size="12" fill="#1d4ed8">DATA</text>
+
+  <!-- ===== Bundle C : relais ===== -->
+  <line x1="260" y1="458" x2="740" y2="634" stroke="#c2410c" stroke-width="2"/>
+  <line x1="260" y1="474" x2="740" y2="650" stroke="#495057" stroke-width="2"/>
+  <line x1="260" y1="490" x2="740" y2="666" stroke="#1d4ed8" stroke-width="2"/>
+  <circle cx="260" cy="458" r="4" fill="#c2410c"/>
+  <circle cx="260" cy="474" r="4" fill="#495057"/>
+  <circle cx="260" cy="490" r="4" fill="#1d4ed8"/>
+  <circle cx="740" cy="634" r="4" fill="#c2410c"/>
+  <circle cx="740" cy="650" r="4" fill="#495057"/>
+  <circle cx="740" cy="666" r="4" fill="#1d4ed8"/>
+  <text x="267" y="454" font-family="system-ui, sans-serif" font-size="12" fill="#c2410c">5V</text>
+  <text x="267" y="470" font-family="system-ui, sans-serif" font-size="12" fill="#495057">GND</text>
+  <text x="267" y="486" font-family="system-ui, sans-serif" font-size="12" fill="#1d4ed8">GPIO33</text>
+  <text x="733" y="630" text-anchor="end" font-family="system-ui, sans-serif" font-size="12" fill="#c2410c">VCC</text>
+  <text x="733" y="646" text-anchor="end" font-family="system-ui, sans-serif" font-size="12" fill="#495057">GND</text>
+  <text x="733" y="662" text-anchor="end" font-family="system-ui, sans-serif" font-size="12" fill="#1d4ed8">IN</text>
+
+  <!-- Relais -> Pompe -->
+  <line x1="820" y1="700" x2="820" y2="730" stroke="#1a1a1a" stroke-width="2"/>
+  <line x1="880" y1="700" x2="880" y2="730" stroke="#1a1a1a" stroke-width="2"/>
+  <circle cx="820" cy="700" r="4" fill="#1a1a1a"/>
+  <circle cx="880" cy="700" r="4" fill="#1a1a1a"/>
+  <text x="800" y="718" text-anchor="middle" font-family="system-ui, sans-serif" font-size="11" fill="#1a1a1a">COM</text>
+  <text x="900" y="718" text-anchor="middle" font-family="system-ui, sans-serif" font-size="11" fill="#1a1a1a">NO</text>
+
+  <!-- Legend -->
+  <text x="40" y="548" font-family="system-ui, sans-serif" font-size="13" font-weight="700" fill="#1a1a1a">Légende</text>
+  <line x1="40" y1="568" x2="75" y2="568" stroke="#c2410c" stroke-width="2"/>
+  <text x="82" y="572" font-family="system-ui, sans-serif" font-size="12" fill="#1a1a1a">Alimentation (3V3 / 5V)</text>
+  <line x1="40" y1="590" x2="75" y2="590" stroke="#495057" stroke-width="2"/>
+  <text x="82" y="594" font-family="system-ui, sans-serif" font-size="12" fill="#1a1a1a">Masse (GND)</text>
+  <line x1="40" y1="612" x2="75" y2="612" stroke="#1d4ed8" stroke-width="2"/>
+  <text x="82" y="616" font-family="system-ui, sans-serif" font-size="12" fill="#1a1a1a">Signal (GPIO)</text>
+</svg>

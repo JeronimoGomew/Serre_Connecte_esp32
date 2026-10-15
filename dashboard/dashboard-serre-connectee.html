@@ -1,0 +1,628 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Serre Connectée — Dashboard</title>
+<style>
+  :root {
+    color-scheme: light;
+    --surface-1:      #fcfcfb;
+    --page:           #f9f9f7;
+    --text-primary:   #0b0b0b;
+    --text-secondary: #52514e;
+    --text-muted:     #898781;
+    --gridline:       #e1e0d9;
+    --border:         rgba(11,11,11,0.10);
+    --series-moisture:#2a78d6; /* blue  */
+    --series-temp:    #eb6834; /* orange */
+    --series-humid:   #1baf7a; /* aqua  */
+    --status-good:    #0ca30c;
+    --status-warn:    #fab219;
+    --status-bad:     #d03b3b;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme="light"]) {
+      color-scheme: dark;
+      --surface-1:      #1a1a19;
+      --page:           #0d0d0d;
+      --text-primary:   #f0efec;
+      --text-secondary: #c3c2b7;
+      --text-muted:     #898781;
+      --gridline:       #2c2c2a;
+      --border:         rgba(255,255,255,0.10);
+      --series-moisture:#3987e5;
+      --series-temp:    #d95926;
+      --series-humid:   #199e70;
+    }
+  }
+  :root[data-theme="dark"] {
+    color-scheme: dark;
+    --surface-1:      #1a1a19;
+    --page:           #0d0d0d;
+    --text-primary:   #f0efec;
+    --text-secondary: #c3c2b7;
+    --text-muted:     #898781;
+    --gridline:       #2c2c2a;
+    --border:         rgba(255,255,255,0.10);
+    --series-moisture:#3987e5;
+    --series-temp:    #d95926;
+    --series-humid:   #199e70;
+  }
+
+  * { box-sizing: border-box; }
+  html, body {
+    margin: 0;
+    background: var(--page);
+    color: var(--text-primary);
+    font-family: system-ui, -apple-system, "Segoe UI", sans-serif;
+  }
+  body {
+    padding: 24px max(16px, env(safe-area-inset-right, 0px)) 48px max(16px, env(safe-area-inset-left, 0px));
+    max-width: 980px;
+    margin: 0 auto;
+  }
+
+  header {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: flex-end;
+    justify-content: space-between;
+    gap: 12px;
+    margin-bottom: 24px;
+  }
+  header h1 {
+    font-size: 1.5rem;
+    margin: 0 0 4px 0;
+    letter-spacing: -0.01em;
+  }
+  header .subtitle {
+    color: var(--text-secondary);
+    font-size: 0.9rem;
+    margin: 0;
+  }
+
+  .status-chip {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 6px 12px;
+    border-radius: 999px;
+    border: 1px solid var(--border);
+    background: var(--surface-1);
+    font-size: 0.85rem;
+    color: var(--text-secondary);
+    white-space: nowrap;
+  }
+  .status-dot {
+    width: 9px;
+    height: 9px;
+    border-radius: 50%;
+    background: var(--text-muted);
+    flex-shrink: 0;
+    transition: background 0.2s ease;
+  }
+  .status-dot.ok   { background: var(--status-good); box-shadow: 0 0 0 3px color-mix(in srgb, var(--status-good) 20%, transparent); }
+  .status-dot.warn { background: var(--status-warn); }
+  .status-dot.bad  { background: var(--status-bad); }
+
+  .broker-line {
+    font-size: 0.78rem;
+    color: var(--text-muted);
+    margin-top: 2px;
+  }
+
+  .tiles {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 16px;
+  }
+  @media (max-width: 720px) {
+    .tiles { grid-template-columns: 1fr; }
+  }
+
+  .tile {
+    background: var(--surface-1);
+    border: 1px solid var(--border);
+    border-radius: 14px;
+    padding: 18px 20px 16px;
+    min-width: 0;
+  }
+  .tile-label {
+    font-size: 0.72rem;
+    font-weight: 600;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    color: var(--text-muted);
+    display: flex;
+    align-items: center;
+    gap: 6px;
+  }
+  .tile-label .swatch {
+    width: 8px; height: 8px; border-radius: 2px;
+  }
+  .tile-value-row {
+    display: flex;
+    align-items: baseline;
+    gap: 6px;
+    margin: 8px 0 2px;
+  }
+  .tile-value {
+    font-size: 2.3rem;
+    font-weight: 600;
+    font-variant-numeric: tabular-nums;
+    line-height: 1;
+  }
+  .tile-unit {
+    font-size: 1.1rem;
+    color: var(--text-secondary);
+    font-weight: 500;
+  }
+  .tile-updated {
+    font-size: 0.75rem;
+    color: var(--text-muted);
+    margin-bottom: 10px;
+  }
+  .tile svg.spark {
+    width: 100%;
+    height: 40px;
+    display: block;
+    overflow: visible;
+  }
+  .tile-caption {
+    font-size: 0.72rem;
+    color: var(--text-muted);
+    font-style: italic;
+    margin-top: 8px;
+    line-height: 1.3;
+  }
+
+  /* threshold meter, moisture tile only */
+  .meter-wrap {
+    margin-top: 10px;
+  }
+  .meter-track {
+    position: relative;
+    height: 8px;
+    border-radius: 4px;
+    background: var(--gridline);
+    overflow: visible;
+  }
+  .meter-fill {
+    position: absolute;
+    left: 0; top: 0; bottom: 0;
+    border-radius: 4px;
+    background: var(--series-moisture);
+    transition: width 0.3s ease, background 0.3s ease;
+  }
+  .meter-fill.below { background: var(--status-warn); }
+  .meter-threshold {
+    position: absolute;
+    top: -3px;
+    bottom: -3px;
+    width: 2px;
+    background: var(--text-primary);
+    opacity: 0.55;
+  }
+  .meter-row {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-top: 8px;
+    font-size: 0.75rem;
+    color: var(--text-secondary);
+  }
+  .meter-row input[type="range"] {
+    flex: 1;
+    accent-color: var(--series-moisture);
+  }
+  .meter-row .threshold-value {
+    font-variant-numeric: tabular-nums;
+    min-width: 2.6em;
+    text-align: right;
+    color: var(--text-primary);
+    font-weight: 600;
+  }
+
+  details.journal {
+    margin-top: 24px;
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    background: var(--surface-1);
+  }
+  details.journal summary {
+    padding: 12px 16px;
+    cursor: pointer;
+    font-size: 0.85rem;
+    color: var(--text-secondary);
+    list-style: none;
+  }
+  details.journal summary::-webkit-details-marker { display: none; }
+  details.journal summary::before {
+    content: "▸ ";
+    color: var(--text-muted);
+  }
+  details.journal[open] summary::before {
+    content: "▾ ";
+  }
+  .journal-body {
+    border-top: 1px solid var(--border);
+    max-height: 220px;
+    overflow-y: auto;
+    padding: 8px 16px 12px;
+    font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+    font-size: 0.75rem;
+    color: var(--text-secondary);
+  }
+  .journal-body div { padding: 2px 0; white-space: pre-wrap; word-break: break-word; }
+  .journal-body .topic-moisture { color: var(--series-moisture); }
+  .journal-body .topic-dht { color: var(--series-humid); }
+  .journal-empty { color: var(--text-muted); font-style: italic; }
+
+  footer {
+    margin-top: 28px;
+    font-size: 0.75rem;
+    color: var(--text-muted);
+    line-height: 1.5;
+  }
+  footer code {
+    font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+    background: var(--gridline);
+    padding: 1px 5px;
+    border-radius: 4px;
+  }
+
+  .fatal-error {
+    background: var(--surface-1);
+    border: 1px solid var(--status-bad);
+    border-radius: 12px;
+    padding: 16px 20px;
+    margin-bottom: 20px;
+    color: var(--text-primary);
+    font-size: 0.9rem;
+    display: none;
+  }
+</style>
+</head>
+<body>
+
+  <header>
+    <div>
+      <h1>Serre connectée</h1>
+      <p class="subtitle">Supervision en direct — capteur d'humidité du sol &amp; DHT22</p>
+    </div>
+    <div>
+      <div class="status-chip">
+        <span class="status-dot" id="statusDot"></span>
+        <span id="statusText">Connexion au broker…</span>
+      </div>
+      <div class="broker-line">broker.hivemq.com:8884 (wss) · topics <code>soil_moisture</code>, <code>dht_data</code></div>
+    </div>
+  </header>
+
+  <div class="fatal-error" id="fatalError"></div>
+
+  <div class="tiles">
+
+    <!-- Humidité du sol -->
+    <div class="tile">
+      <div class="tile-label"><span class="swatch" style="background:var(--series-moisture)"></span>Humidité du sol</div>
+      <div class="tile-value-row">
+        <span class="tile-value" id="moistureValue">—</span>
+        <span class="tile-unit">%</span>
+      </div>
+      <div class="tile-updated" id="moistureUpdated">en attente de données…</div>
+      <svg class="spark" id="moistureSpark" viewBox="0 0 200 40" preserveAspectRatio="none"></svg>
+
+      <div class="meter-wrap">
+        <div class="meter-track">
+          <div class="meter-fill" id="moistureFill" style="width:0%"></div>
+          <div class="meter-threshold" id="moistureThresholdMark" style="left:25%"></div>
+        </div>
+        <div class="meter-row">
+          <span>Seuil d'arrosage</span>
+          <input type="range" id="moistureThresholdInput" min="0" max="100" value="25" step="1">
+          <span class="threshold-value" id="moistureThresholdValue">25%</span>
+        </div>
+      </div>
+      <div class="tile-caption">Étalonnage : 0&nbsp;% = air libre, 100&nbsp;% = capteur immergé. Le seuil ci-dessus est indicatif (réglage local, n'agit pas sur la pompe).</div>
+    </div>
+
+    <!-- Température -->
+    <div class="tile">
+      <div class="tile-label"><span class="swatch" style="background:var(--series-temp)"></span>Température</div>
+      <div class="tile-value-row">
+        <span class="tile-value" id="tempValue">—</span>
+        <span class="tile-unit">°C</span>
+      </div>
+      <div class="tile-updated" id="tempUpdated">en attente de données…</div>
+      <svg class="spark" id="tempSpark" viewBox="0 0 200 40" preserveAspectRatio="none"></svg>
+      <div class="tile-caption">Capteur DHT22, publié sur <code>dht_data</code>.</div>
+    </div>
+
+    <!-- Humidité de l'air -->
+    <div class="tile">
+      <div class="tile-label"><span class="swatch" style="background:var(--series-humid)"></span>Humidité de l'air</div>
+      <div class="tile-value-row">
+        <span class="tile-value" id="humidValue">—</span>
+        <span class="tile-unit">%</span>
+      </div>
+      <div class="tile-updated" id="humidUpdated">en attente de données…</div>
+      <svg class="spark" id="humidSpark" viewBox="0 0 200 40" preserveAspectRatio="none"></svg>
+      <div class="tile-caption">Capteur DHT22, publié sur <code>dht_data</code>.</div>
+    </div>
+
+  </div>
+
+  <details class="journal">
+    <summary>Journal des messages MQTT reçus</summary>
+    <div class="journal-body" id="journalBody">
+      <div class="journal-empty">Aucun message reçu pour le moment.</div>
+    </div>
+  </details>
+
+  <footer>
+    Cette page se connecte directement au broker public <code>broker.hivemq.com</code> via WebSocket sécurisé,
+    exactement comme le client web HiveMQ utilisé pour les tests. Les topics <code>soil_moisture</code> et
+    <code>dht_data</code> sont publics : n'importe qui connaissant leur nom peut y publier ou les lire — à garder
+    en tête avant de montrer ce projet publiquement (pour un vrai déploiement, un broker privé avec authentification
+    serait recommandé). Cette page est un fichier HTML autonome : ouvrez-la simplement dans un navigateur, aucun
+    serveur n'est nécessaire.
+  </footer>
+
+<script>
+(function () {
+  "use strict";
+
+  var MAX_HISTORY = 50;
+  var STALE_AFTER_MS = 60000; // si rien reçu depuis 60s, on considère les données "périmées"
+
+  var state = {
+    moisture: { history: [], lastTs: null },
+    temp:     { history: [], lastTs: null },
+    humid:    { history: [], lastTs: null },
+    mqttConnected: false
+  };
+
+  // ---------- utilitaires DOM ----------
+  function $(id) { return document.getElementById(id); }
+
+  function setStatus(kind, text) {
+    var dot = $("statusDot");
+    dot.classList.remove("ok", "warn", "bad");
+    if (kind === "ok") dot.classList.add("ok");
+    else if (kind === "warn") dot.classList.add("warn");
+    else if (kind === "bad") dot.classList.add("bad");
+    $("statusText").textContent = text;
+  }
+
+  function relativeTime(ts) {
+    if (!ts) return "en attente de données…";
+    var s = Math.round((Date.now() - ts) / 1000);
+    if (s < 2) return "à l'instant";
+    if (s < 60) return "il y a " + s + " s";
+    var m = Math.round(s / 60);
+    if (m < 60) return "il y a " + m + " min";
+    var h = Math.round(m / 60);
+    return "il y a " + h + " h";
+  }
+
+  function drawSparkline(svg, values, color) {
+    while (svg.firstChild) svg.removeChild(svg.firstChild);
+    if (values.length < 2) return;
+    var w = 200, h = 40, pad = 4;
+    var min = Math.min.apply(null, values);
+    var max = Math.max.apply(null, values);
+    if (min === max) { min -= 1; max += 1; }
+    var n = values.length;
+    var pts = values.map(function (v, i) {
+      var x = pad + (i / (n - 1)) * (w - 2 * pad);
+      var y = pad + (1 - (v - min) / (max - min)) * (h - 2 * pad);
+      return [x, y];
+    });
+    var d = "M " + pts.map(function (p) { return p[0].toFixed(1) + " " + p[1].toFixed(1); }).join(" L ");
+    var path = document.createElementNS("http://www.w3.org/2000/svg", "path");
+    path.setAttribute("d", d);
+    path.setAttribute("fill", "none");
+    path.setAttribute("stroke", color);
+    path.setAttribute("stroke-width", "2");
+    path.setAttribute("stroke-linecap", "round");
+    path.setAttribute("stroke-linejoin", "round");
+    svg.appendChild(path);
+
+    var last = pts[pts.length - 1];
+    var dot = document.createElementNS("http://www.w3.org/2000/svg", "circle");
+    dot.setAttribute("cx", last[0].toFixed(1));
+    dot.setAttribute("cy", last[1].toFixed(1));
+    dot.setAttribute("r", "3");
+    dot.setAttribute("fill", color);
+    svg.appendChild(dot);
+  }
+
+  function pushHistory(key, value) {
+    var h = state[key].history;
+    h.push(value);
+    if (h.length > MAX_HISTORY) h.shift();
+    state[key].lastTs = Date.now();
+  }
+
+  // ---------- rendu des tuiles ----------
+  function renderMoisture() {
+    var v = state.moisture.history[state.moisture.history.length - 1];
+    $("moistureValue").textContent = (v === undefined) ? "—" : Math.round(v);
+    $("moistureUpdated").textContent = relativeTime(state.moisture.lastTs);
+    drawSparkline($("moistureSpark"), state.moisture.history, getComputedStyle(document.documentElement).getPropertyValue("--series-moisture").trim());
+
+    var threshold = Number($("moistureThresholdInput").value);
+    var pct = (v === undefined) ? 0 : Math.max(0, Math.min(100, v));
+    var fill = $("moistureFill");
+    fill.style.width = pct + "%";
+    fill.classList.toggle("below", v !== undefined && v < threshold);
+    $("moistureThresholdMark").style.left = threshold + "%";
+  }
+
+  function renderTemp() {
+    var v = state.temp.history[state.temp.history.length - 1];
+    $("tempValue").textContent = (v === undefined) ? "—" : v.toFixed(1);
+    $("tempUpdated").textContent = relativeTime(state.temp.lastTs);
+    drawSparkline($("tempSpark"), state.temp.history, getComputedStyle(document.documentElement).getPropertyValue("--series-temp").trim());
+  }
+
+  function renderHumid() {
+    var v = state.humid.history[state.humid.history.length - 1];
+    $("humidValue").textContent = (v === undefined) ? "—" : v.toFixed(1);
+    $("humidUpdated").textContent = relativeTime(state.humid.lastTs);
+    drawSparkline($("humidSpark"), state.humid.history, getComputedStyle(document.documentElement).getPropertyValue("--series-humid").trim());
+  }
+
+  function renderAll() { renderMoisture(); renderTemp(); renderHumid(); }
+
+  // ---------- journal ----------
+  function logMessage(topic, payload) {
+    var body = $("journalBody");
+    var empty = body.querySelector(".journal-empty");
+    if (empty) empty.remove();
+    var line = document.createElement("div");
+    var cls = topic === "soil_moisture" ? "topic-moisture" : "topic-dht";
+    var time = new Date().toLocaleTimeString("fr-FR");
+    line.innerHTML = "[" + time + "] <span class=\"" + cls + "\">" + topic + "</span> → " + payload.replace(/</g, "&lt;");
+    body.insertBefore(line, body.firstChild);
+    while (body.children.length > 50) body.removeChild(body.lastChild);
+  }
+
+  // ---------- traitement des messages MQTT ----------
+  function handleMessage(topic, payloadStr) {
+    if (topic === "soil_moisture") {
+      var n = Number(payloadStr);
+      if (!Number.isNaN(n)) pushHistory("moisture", n);
+    } else if (topic === "dht_data") {
+      try {
+        var obj = JSON.parse(payloadStr);
+        if (typeof obj.temperature === "number") pushHistory("temp", obj.temperature);
+        if (typeof obj.humidity === "number") pushHistory("humid", obj.humidity);
+      } catch (e) {
+        console.warn("dht_data: JSON invalide", payloadStr);
+      }
+    }
+    logMessage(topic, payloadStr);
+    renderAll();
+  }
+
+  // ---------- fraîcheur des données (indépendant de l'état du socket) ----------
+  function checkFreshness() {
+    if (!state.mqttConnected) return;
+    var newest = [state.moisture.lastTs, state.temp.lastTs, state.humid.lastTs]
+      .filter(Boolean);
+    if (newest.length === 0) return; // pas encore de 1er message, on laisse le statut "connecté"
+    var mostRecent = Math.max.apply(null, newest);
+    if (Date.now() - mostRecent > STALE_AFTER_MS) {
+      setStatus("warn", "Connecté, mais pas de données depuis plus d'une minute");
+    } else {
+      setStatus("ok", "Connecté au broker");
+    }
+  }
+
+  setInterval(function () { renderAll(); checkFreshness(); }, 1000);
+
+  // ---------- seuil d'arrosage (UI locale) ----------
+  $("moistureThresholdInput").addEventListener("input", function () {
+    $("moistureThresholdValue").textContent = this.value + "%";
+    renderMoisture();
+  });
+
+  // ---------- chargement de la librairie MQTT (CDN, avec repli) ----------
+  var MQTT_CDN_URLS = [
+    "https://cdnjs.cloudflare.com/ajax/libs/mqtt/5.10.1/mqtt.min.js",
+    "https://cdn.jsdelivr.net/npm/mqtt@5.10.1/dist/mqtt.min.js",
+    "https://unpkg.com/mqtt@5.10.1/dist/mqtt.min.js"
+  ];
+
+  function loadScript(url) {
+    return new Promise(function (resolve, reject) {
+      var s = document.createElement("script");
+      s.src = url;
+      s.onload = function () { resolve(); };
+      s.onerror = function () { reject(new Error("échec de chargement: " + url)); };
+      document.head.appendChild(s);
+    });
+  }
+
+  function loadMqttLib() {
+    var i = 0;
+    function tryNext() {
+      if (i >= MQTT_CDN_URLS.length) return Promise.resolve(false);
+      var url = MQTT_CDN_URLS[i++];
+      return loadScript(url).then(function () {
+        return !!window.mqtt;
+      }).catch(function () {
+        return tryNext();
+      });
+    }
+    return tryNext();
+  }
+
+  function showFatalError(message) {
+    var box = $("fatalError");
+    box.style.display = "block";
+    box.textContent = message;
+    setStatus("bad", "Hors ligne");
+  }
+
+  // ---------- connexion MQTT ----------
+  function initMqtt() {
+    var clientId = "dashboard_serre_" + Math.random().toString(16).slice(2);
+    var client = window.mqtt.connect("wss://broker.hivemq.com:8884/mqtt", {
+      clientId: clientId,
+      reconnectPeriod: 2000,
+      connectTimeout: 10000
+    });
+
+    client.on("connect", function () {
+      state.mqttConnected = true;
+      setStatus("ok", "Connecté au broker");
+      client.subscribe(["soil_moisture", "dht_data"], function (err) {
+        if (err) console.error("Échec abonnement:", err);
+      });
+    });
+
+    client.on("reconnect", function () {
+      state.mqttConnected = false;
+      setStatus("warn", "Reconnexion en cours…");
+    });
+
+    client.on("close", function () {
+      state.mqttConnected = false;
+      setStatus("bad", "Déconnecté du broker");
+    });
+
+    client.on("error", function (err) {
+      console.error("Erreur MQTT:", err);
+      state.mqttConnected = false;
+      setStatus("bad", "Erreur de connexion");
+    });
+
+    client.on("message", function (topic, payload) {
+      handleMessage(topic, payload.toString());
+    });
+  }
+
+  document.addEventListener("DOMContentLoaded", function () {
+    renderAll();
+    loadMqttLib().then(function (ok) {
+      if (!ok) {
+        showFatalError(
+          "Impossible de charger la librairie MQTT (mqtt.js) depuis un CDN. " +
+          "Vérifiez votre connexion internet, ou que votre réseau/pare-feu n'empêche pas l'accès à " +
+          "cdnjs.cloudflare.com / jsdelivr.net / unpkg.com, puis rechargez la page."
+        );
+        return;
+      }
+      initMqtt();
+    });
+  });
+
+})();
+</script>
+
+</body>
+</html>
