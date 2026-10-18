@@ -104,6 +104,4 @@ Avant de flasher, renseigner son propre SSID/mot de passe WiFi dans `wifi.c` (ne
 
 *Photos du montage et vidéo de démonstration à venir.*
 
-## Licence
 
-Non définie — à préciser (MIT recommandée pour un projet de portfolio).
