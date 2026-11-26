@@ -8,6 +8,8 @@
 #include "nvs_flash.h"
 #include "esp_log.h"
 #include "mqtt.h"
+#include "i2c.h"
+#include "oled.h"
 
 static const char *TAG = "main";
 
@@ -30,10 +32,14 @@ void app_main(void){
 
 
   mqtt_app_start();
+
+  i2c_master_bus_handle_t i2c_bus = i2c_bus_init();
+  oled_init(i2c_bus);
   QueueHandle_t queue_moisture = xQueueCreate(5,sizeof(int));
   QueueHandle_t queue_dht = xQueueCreate(5,5*sizeof(uint8_t));
 
   xTaskCreate(DHT_Task,"DHT_Task",4096,queue_dht,5,NULL);
   xTaskCreate(soil_sensor_task,"soil_sensor_task",4096,queue_moisture,5,NULL);
   xTaskCreate(pump_task,"pump_task",2048,queue_moisture,5,NULL);
+  xTaskCreate(oled_task,"oled_task",4096,NULL,4,NULL);
 }

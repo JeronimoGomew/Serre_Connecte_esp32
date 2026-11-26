@@ -6,6 +6,7 @@
 #include "esp_log.h"
 #include "soil_sensor.h"
 #include "mqtt.h"
+#include "oled.h"
 
 
 
@@ -53,6 +54,7 @@ void soil_sensor_task(void *pvParameter){
         
         xQueueSend(queue_moisture, &percent,0);
         mqtt_publish_moisture(percent);
+        oled_set_soil(percent);
 
         vTaskDelay(pdMS_TO_TICKS(1000));
     }

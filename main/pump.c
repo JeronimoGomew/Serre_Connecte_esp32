@@ -4,8 +4,6 @@
 #include "freertos/queue.h" 
 
 #define GPIO_PUMP GPIO_NUM_33
-#define THRESHOLD_L 10
-#define THRESHOLD_H 25
 
 void pump_init(void){
     gpio_reset_pin(GPIO_PUMP);

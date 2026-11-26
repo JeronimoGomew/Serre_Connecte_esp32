@@ -5,6 +5,7 @@
 #include "freertos/queue.h"
 #include "esp_log.h"
 #include "mqtt.h"
+#include "oled.h"
 
 
 #define DHT_GPIO GPIO_NUM_18
@@ -77,6 +78,7 @@ void DHT_Task(void *pvParameter){
         float humidity = ((bytes[0]<<8)|bytes[1])/10.0;
         float temperature = ((bytes[2]<<8)|bytes[3])/10.0;
         mqtt_publish_dht(temperature, humidity);
+        oled_set_temperature(temperature);
 
         vTaskDelay(pdMS_TO_TICKS(3000));   
     }
